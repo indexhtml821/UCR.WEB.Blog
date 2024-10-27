@@ -1,0 +1,21 @@
+﻿<!-- Mostrar comentarios existentes -->
+<h3>Comentarios</h3>
+<ul>
+    @foreach (var comment in Model.Comments)
+    {
+        <li>@comment.Text</li>
+    }
+</ul>
+
+<!-- Formulario para añadir un nuevo comentario -->
+<h3>Añadir un comentario</h3>
+<form asp-action="Create" asp-controller="Comments" method="post">
+    <input type="hidden" name="PostId" value="@Model.Id" />
+    <div>
+        <label for="Text">Comentario:</label>
+        <textarea name="Text"></textarea>
+    </div>
+    <div>
+        <input type="submit" value="Enviar comentario" />
+    </div>
+</form>

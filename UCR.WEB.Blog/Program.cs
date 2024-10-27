@@ -3,13 +3,15 @@ using UCR.WEB.Blog.Models.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
+builder.Services.AddDbContext<BlogDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("BlogDatabase")));
+
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
-builder.Services.AddDbContext<BlogDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("BlogDatabase")));
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
