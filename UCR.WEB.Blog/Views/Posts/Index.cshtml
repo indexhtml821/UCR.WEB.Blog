@@ -1,4 +1,26 @@
-﻿@page
-@model UCR.WEB.Blog.Views.Posts.IndexModel
+﻿@model List<UCR.WEB.Blog.Models.Post>
+
 @{
+    ViewData["Title"] = "Posts";
+}
+
+<h2>Posts</h2>
+
+@if (Model != null && Model.Any())
+{
+    foreach (var post in Model)
+    {
+        <div>
+            <h3>@post.Title</h3>
+            <p>@post.Body</p>
+            <p>
+                <a asp-action="Details" asp-route-id="@post.Id">View Details</a> |
+                <a asp-action="Edit" asp-route-id="@post.Id">Edit</a>
+            </p>
+        </div>
+    }
+}
+else
+{
+    <p>No posts available.</p>
 }
