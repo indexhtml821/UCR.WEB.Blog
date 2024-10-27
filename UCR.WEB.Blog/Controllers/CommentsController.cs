@@ -43,7 +43,7 @@ public class CommentsController:Controller
             return NotFound();
         }
 
-        return View(movie);
+        return View(comment);
     }
 
     [HttpPost("Create")]
