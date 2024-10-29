@@ -11,7 +11,7 @@ using UCR.WEB.Blog.Models.Data;
 namespace UCR.WEB.Blog.Migrations
 {
     [DbContext(typeof(BlogDbContext))]
-    [Migration("20241027052754_InitialCreate")]
+    [Migration("20241029202106_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
