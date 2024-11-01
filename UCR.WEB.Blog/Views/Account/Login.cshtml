@@ -1,0 +1,45 @@
+﻿@model UCR.WEB.Blog.ViewModels.LoginVM;
+@{
+Layout = null;
+}
+
+
+<html>
+<head>
+    <title>Register</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+</head>
+
+<body>
+    <div class="row mt-5 justify-content-center">
+        <div class="col-sm-4">
+            <div class="card-header">
+                Login
+            </div>
+            <div class="card-body">
+                <form asp-controller="Account" asp-action="Login" method="post">
+
+                    <input class="form-control mb-3" type="text" placeholder="Nombre Completo" required asp-for="Email" />
+
+
+                    <input class="form-control mb-3" type="text" placeholder="Contraseña" required asp-for="Password" />
+
+                    <div>
+                        <button class="btn btn-primary" type="submit ">Login</button>
+                        <a href="/Login/Login" class="btn btn-link">Iniciar Sesión</a>
+
+                    </div>
+
+                    @if (ViewData["Error"] != null)
+                    {
+                        <div class="alert alert-danger mt-3" role="alert">
+                            @ViewData["Error"]
+                        </div>
+                    }
+                </form>
+            </div>
+        </div>
+        <script src="~/lib/jquery/dist/jquery.min.js"></script>
+        <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
