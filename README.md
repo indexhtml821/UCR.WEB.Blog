@@ -1,6 +1,6 @@
 # UCR.WEB.Blog
 ## Autores 
-- Issac 
+- Isaac Gutiérrez Ramírez - C03640
 - Christopher Durán Aguilar - B72630
 ## Base de datos 
 Trabajamos una base de datos sql server, la estamos corriendo en docker para facilitar el uso de esta. 
