@@ -1,5 +1,8 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -8,26 +11,20 @@ using UCR.WEB.Blog.Models.Data;
 
 namespace UCR.WEB.Blog.Controllers
 {
-    [Authorize] // Ensure only admins can access this controller
+    [Authorize]
     public class UserController : Controller
     {
         private readonly BlogDbContext _context;
-        private readonly UserManager<User> _userManager;
-        private readonly RoleManager<IdentityRole> _roleManager;
 
-        public UserController(BlogDbContext context, UserManager<User> userManager, RoleManager<IdentityRole> roleManager)
+        public UserController(BlogDbContext context)
         {
             _context = context;
-            _userManager = userManager;
-            _roleManager = roleManager;
         }
 
-   
         // GET: User
         public async Task<IActionResult> Index()
         {
-          //  var users = await _userManager.Users.ToListAsync();
-            return View();
+            return View(await _context.User.ToListAsync());
         }
 
         // GET: User/Details/5
@@ -38,7 +35,8 @@ namespace UCR.WEB.Blog.Controllers
                 return NotFound();
             }
 
-            var user = await _userManager.FindByIdAsync(id);
+            var user = await _context.User
+                .FirstOrDefaultAsync(m => m.Id == id);
             if (user == null)
             {
                 return NotFound();
@@ -48,43 +46,29 @@ namespace UCR.WEB.Blog.Controllers
         }
 
         // GET: User/Create
-        public async Task<IActionResult> Create()
+        public IActionResult Create()
         {
-            var roles = await _roleManager.Roles.ToListAsync(); // Fetch available roles
-            ViewBag.Roles = roles; // Pass roles to the view
             return View();
         }
 
         // POST: User/Create
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Name,Email,UserName")] User user, string password, string selectedRole)
+        public async Task<IActionResult> Create([Bind("Name,Role,Password,Id,UserName,NormalizedUserName,Email,NormalizedEmail,EmailConfirmed,PasswordHash,SecurityStamp,ConcurrencyStamp,PhoneNumber,PhoneNumberConfirmed,TwoFactorEnabled,LockoutEnd,LockoutEnabled,AccessFailedCount")] User user)
         {
             if (ModelState.IsValid)
             {
-                var result = await _userManager.CreateAsync(user, password);
-                if (result.Succeeded)
-                {
-                    // Assign role to user
-                    if (!string.IsNullOrEmpty(selectedRole))
-                    {
-                        await _userManager.AddToRoleAsync(user, selectedRole);
-                    }
-                    return RedirectToAction(nameof(Index));
-                }
-
-                foreach (var error in result.Errors)
-                {
-                    ModelState.AddModelError("", error.Description);
-                }
+                _context.Add(user);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
             }
-
-            var roles = await _roleManager.Roles.ToListAsync();
-            ViewBag.Roles = roles;
             return View(user);
         }
 
         // GET: User/Edit/5
+        [Authorize(Roles = "Administrator") ]
         public async Task<IActionResult> Edit(string id)
         {
             if (id == null)
@@ -92,21 +76,20 @@ namespace UCR.WEB.Blog.Controllers
                 return NotFound();
             }
 
-            var user = await _userManager.FindByIdAsync(id);
+            var user = await _context.User.FindAsync(id);
             if (user == null)
             {
                 return NotFound();
             }
-
-            var userRoles = await _userManager.GetRolesAsync(user); // Fetch roles for the user
-            ViewBag.UserRoles = userRoles; // Pass user roles to the view
             return View(user);
         }
 
         // POST: User/Edit/5
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, [Bind("Name,Email,UserName")] User user, string selectedRole)
+        public async Task<IActionResult> Edit(string id, [Bind("Name,Role,Password,Id,UserName,NormalizedUserName,Email,NormalizedEmail,EmailConfirmed,PasswordHash,SecurityStamp,ConcurrencyStamp,PhoneNumber,PhoneNumberConfirmed,TwoFactorEnabled,LockoutEnd,LockoutEnabled,AccessFailedCount")] User user)
         {
             if (id != user.Id)
             {
@@ -117,20 +100,8 @@ namespace UCR.WEB.Blog.Controllers
             {
                 try
                 {
-                    var existingUser = await _userManager.FindByIdAsync(id);
-                    existingUser.Name = user.Name;
-                    existingUser.Email = user.Email;
-                    existingUser.UserName = user.UserName;
-
-                    var result = await _userManager.UpdateAsync(existingUser);
-                    if (result.Succeeded)
-                    {
-                        // Update roles
-                        var currentRoles = await _userManager.GetRolesAsync(existingUser);
-                        await _userManager.RemoveFromRolesAsync(existingUser, currentRoles);
-                        await _userManager.AddToRoleAsync(existingUser, selectedRole);
-                        await _context.SaveChangesAsync();
-                    }
+                    _context.Update(user);
+                    await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -156,7 +127,8 @@ namespace UCR.WEB.Blog.Controllers
                 return NotFound();
             }
 
-            var user = await _userManager.FindByIdAsync(id);
+            var user = await _context.User
+                .FirstOrDefaultAsync(m => m.Id == id);
             if (user == null)
             {
                 return NotFound();
@@ -170,18 +142,19 @@ namespace UCR.WEB.Blog.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(string id)
         {
-            var user = await _userManager.FindByIdAsync(id);
+            var user = await _context.User.FindAsync(id);
             if (user != null)
             {
-                await _userManager.DeleteAsync(user);
+                _context.User.Remove(user);
             }
 
+            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool UserExists(string id)
         {
-            return _userManager.Users.Any(e => e.Id == id);
+            return _context.User.Any(e => e.Id == id);
         }
     }
 }
