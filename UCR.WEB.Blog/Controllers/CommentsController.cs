@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Encodings.Web;
 using UCR.WEB.Blog.Models;
@@ -6,6 +7,7 @@ using UCR.WEB.Blog.Models.Data;
 
 namespace UCR.WEB.Blog.Controllers;
 
+[Authorize]
 public class CommentsController:Controller
 {
     private readonly BlogDbContext _context;
@@ -43,7 +45,7 @@ public class CommentsController:Controller
             return NotFound();
         }
 
-        return View(movie);
+        return View();
     }
 
     [HttpPost("Create")]
