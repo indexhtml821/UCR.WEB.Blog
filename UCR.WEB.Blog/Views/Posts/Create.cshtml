@@ -1,15 +1,49 @@
 @model UCR.WEB.Blog.Models.Post
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Create Post";
 }
 
-<h1>Create</h1>
+<div class="container my-5">
+    <div class="text-center mb-4">
+        <h2>Create a New Post</h2>
+    </div>
 
-<h4>Post</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
+    <!-- Image Section with Buttons -->
+    <div class="d-flex justify-content-center align-items-center bg-light p-4 rounded mb-4">
+        <button class="btn btn-danger m-2" title="Eliminar imagen" onclick="removeImage()">
+            ➖
+        </button>
+
+        <div id="imageCarousel" class="carousel slide d-inline-block" data-bs-ride="carousel" style="width: 300px;">
+            <div class="carousel-inner">
+                <div class="carousel-item active">
+                    <img src="src=" ~/images/navbarLogo.png" class="d-block w-100 rounded" alt="Imagen 1">
+                </div>
+                <div class="carousel-item">
+                    <div class="bg-secondary rounded" style="width: 100%; height: 100px;"></div>
+                </div>
+                <div class="carousel-item">
+                    <div class="bg-secondary rounded" style="width: 100%; height: 100px;"></div>
+                </div>
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#imageCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#imageCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+            </button>
+        </div>
+
+        <button class="btn btn-success m-2" title="Agregar imagen" onclick="addImage()">
+            +
+        </button>
+    </div>
+
+    <!-- Form Section -->
+    <div class="bg-light p-4 rounded shadow-sm">
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
@@ -34,10 +68,8 @@
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }
