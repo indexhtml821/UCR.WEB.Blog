@@ -1,10 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using UCR.WEB.Blog.Models;
 using UCR.WEB.Blog.Models.Data;
@@ -31,6 +26,7 @@ namespace UCR.WEB.Blog.Controllers
         public async Task<IActionResult> Details(int? id)
         {
             ViewData["HeaderText"] = "Detalles";
+
             if (id == null)
             {
                 return NotFound();

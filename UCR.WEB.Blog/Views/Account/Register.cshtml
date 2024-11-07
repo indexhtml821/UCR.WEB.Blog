@@ -1,43 +1,45 @@
 ﻿@model UCR.WEB.Blog.ViewModels.UserVM;
 
-<html>
-    <head>
-    <title>Register</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    </head>
+<div class="container mt-5">
+    <div class="row justify-content-center mb-5">
+        <div class="col-md-6 col-lg-4">
+            <form asp-controller="Account" asp-action="Register" method="post">
+                <div class="mb-3">
+                    <label for="Name" class="form-label">Nombre Completo</label>
+                    <input class="form-control" type="text" id="Name" placeholder="Ingrese su nombre completo" required
+                        asp-for="Name" />
+                </div>
 
-<body>
-    <div class="row mt-5 justify-content-center">
-        <div class="col-sm-4">
-            <div class="card-header">
-                Register
-            </div>
-            <div class="card-body">
-               <form asp-controller="Account" asp-action="Register" method="post">
+                <div class="mb-3">
+                    <label for="Email" class="form-label">Correo Electrónico</label>
+                    <input class="form-control" type="email" id="Email" placeholder="Ingrese su correo electrónico"
+                        required asp-for="Email" />
+                </div>
 
-<input class="form-control mb-3" type="text" placeholder="Nombre Completo" required asp-for="Name" />
+                <div class="mb-3">
+                    <label for="Password" class="form-label">Contraseña</label>
+                    <input class="form-control" type="password" id="Password" placeholder="Ingrese su contraseña"
+                        required asp-for="Password" />
+                </div>
 
-<input class="form-control mb-3" type="text" placeholder="Correo" required asp-for="Email" />
+                <div class="mb-3">
+                    <label for="ConfirmationKey" class="form-label">Confirmar Contraseña</label>
+                    <input class="form-control" type="password" id="ConfirmationKey"
+                        placeholder="Confirme su contraseña" required asp-for="ConfirmationKey" />
+                </div>
 
-<input class="form-control mb-3" type="text" placeholder="Contraseña" required asp-for="Password"/>
+                <div class="d-grid gap-2">
+                    <button class="btn btn-primary" type="submit">Registrar</button>
+                    <a href="/Account/Login" class="btn btn-link text-center">¿Ya tienes cuenta? Inicia sesión</a>
+                </div>
 
-<input class="form-control mb-3" type="text" placeholder="Confirmar Contraseña" required asp-for="ConfirmationKey"/>
-<div>
-    <button class="btn btn-primary" type="submit ">Registrar</button>
-    <a href="/Login/Login" class="btn btn-link">Iniciar Sesión</a>
-    
-</div>
-
-@if(ViewData["Error"] != null)
-{
-    <div class="alert alert-danger mt-3" role="alert">
-        @ViewData["Error"]
+                @if (ViewData["Error"] != null)
+                {
+                    <div class="alert alert-danger mt-3" role="alert">
+                        @ViewData["Error"]
+                    </div>
+                }
+            </form>
+        </div>
     </div>
-}
-</form>
-        </div>
-        </div>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-        </body>
-        </html>
+</div>

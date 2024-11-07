@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using UCR.WEB.Blog.Models;
-using Microsoft.EntityFrameworkCore;
 using UCR.WEB.Blog.Models.Data;
 
 namespace UCR.WEB.Blog.Controllers
@@ -32,8 +31,7 @@ namespace UCR.WEB.Blog.Controllers
 
         public IActionResult Privacy()
         {
-            ViewData["HeaderText"] = "Privacidad";
-            return View();
+            return RedirectToAction("Index", "Home");
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
