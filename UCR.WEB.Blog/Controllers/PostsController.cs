@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -24,9 +25,9 @@ namespace UCR.WEB.Blog.Controllers
         {
             return View(await _context.Posts.ToListAsync());
         }
-
+       [Authorize]
         // GET: Posts/Details/5
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Details(int? id)   
         {
             if (id == null)
             {
@@ -43,6 +44,7 @@ namespace UCR.WEB.Blog.Controllers
             return View(post);
         }
 
+        [Authorize]
         // GET: Posts/Create
         public IActionResult Create()
         {
@@ -54,7 +56,7 @@ namespace UCR.WEB.Blog.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Title,Body")] Post post)
+        public async Task<IActionResult> Create([Bind("Id,Title,Body,UserId")] Post post)
         {
             if (ModelState.IsValid)
             {
@@ -66,6 +68,7 @@ namespace UCR.WEB.Blog.Controllers
         }
 
         // GET: Posts/Edit/5
+        // GET: Posts/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -74,29 +77,53 @@ namespace UCR.WEB.Blog.Controllers
             }
 
             var post = await _context.Posts.FindAsync(id);
+
             if (post == null)
             {
                 return NotFound();
             }
+
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+            if (userId != post.UserId && !User.IsInRole("Administrator"))
+            {
+                return Forbid(); // El usuario no está autorizado a editar este post
+            }
+
             return View(post);
         }
 
         // POST: Posts/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Body")] Post post)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Body,UserId")] Post post)
         {
             if (id != post.Id)
             {
                 return NotFound();
             }
 
+            // Verificar que el usuario actual es el autor o un administrador antes de proceder
+            var existingPost = await _context.Posts.AsNoTracking().FirstOrDefaultAsync(p => p.Id == id);
+            if (existingPost == null)
+            {
+                return NotFound();
+            }
+
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+            if (userId != existingPost.UserId && !User.IsInRole("Administrator"))
+            {
+                return Forbid(); // El usuario no está autorizado a editar este post
+            }
+
             if (ModelState.IsValid)
             {
                 try
                 {
+                    // Asegurarse de no modificar el UserId
+                    post.UserId = existingPost.UserId;
+
                     _context.Update(post);
                     await _context.SaveChangesAsync();
                 }
@@ -117,6 +144,7 @@ namespace UCR.WEB.Blog.Controllers
         }
 
         // GET: Posts/Delete/5
+        // GET: Posts/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -124,11 +152,19 @@ namespace UCR.WEB.Blog.Controllers
                 return NotFound();
             }
 
-            var post = await _context.Posts
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var post = await _context.Posts.FirstOrDefaultAsync(m => m.Id == id);
             if (post == null)
             {
                 return NotFound();
+            }
+
+            // Obtener el UserId del usuario actual
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+            // Verificar si el usuario es el autor o un administrador
+            if (userId != post.UserId && !User.IsInRole("Administrator"))
+            {
+                return Forbid(); // El usuario no está autorizado a ver esta página
             }
 
             return View(post);
@@ -142,12 +178,22 @@ namespace UCR.WEB.Blog.Controllers
             var post = await _context.Posts.FindAsync(id);
             if (post != null)
             {
+                // Obtener el UserId del usuario actual
+                var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+                // Verificar si el usuario es el autor o un administrador
+                if (userId != post.UserId && !User.IsInRole("Administrator"))
+                {
+                    return Forbid(); // El usuario no está autorizado a eliminar este post
+                }
+
                 _context.Posts.Remove(post);
+                await _context.SaveChangesAsync();
             }
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
+
 
         private bool PostExists(int id)
         {

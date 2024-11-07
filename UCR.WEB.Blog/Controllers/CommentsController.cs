@@ -1,160 +1,62 @@
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Encodings.Web;
 using UCR.WEB.Blog.Models;
 using UCR.WEB.Blog.Models.Data;
 
-namespace UCR.WEB.Blog.Controllers
+namespace UCR.WEB.Blog.Controllers;
+
+[Authorize]
+public class CommentsController:Controller
 {
-    public class CommentsController : Controller
+    private readonly BlogDbContext _context;
+
+    public CommentsController(BlogDbContext context)
     {
-        private readonly BlogDbContext _context;
+        _context = context;
+    }
 
-        public CommentsController(BlogDbContext context)
+    public string Index()
+    {
+        return "This is my default action...";
+    }
+
+    // 
+    // GET: /HelloWorld/Welcome/ 
+    public string Welcome()
+    {
+        return "This is the Welcome action method...";
+    }
+
+
+    // GET: Movies/Details/5
+    public async Task<IActionResult> Details(int? id)
+    {
+        if (id == null)
         {
-            _context = context;
+            return NotFound();
         }
 
-        // GET: Comments
-        public async Task<IActionResult> Index()
+        var comment = await _context.Comments
+            .FirstOrDefaultAsync(c => c.Id == id);
+        if (comment == null)
         {
-            var blogDbContext = _context.Comments.Include(c => c.Post);
-            return View(await blogDbContext.ToListAsync());
+            return NotFound();
         }
 
-        // GET: Comments/Details/5
-        public async Task<IActionResult> Details(int? id)
+        return View();
+    }
+
+    [HttpPost("Create")]
+    public async Task<IActionResult> Create([Bind("Id,Text,PostId")] Comment comment)
+    {
+        if (ModelState.IsValid)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var comment = await _context.Comments
-                .Include(c => c.Post)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (comment == null)
-            {
-                return NotFound();
-            }
-
-            return View(comment);
-        }
-
-        // GET: Comments/Create
-        public IActionResult Create()
-        {
-            ViewData["PostId"] = new SelectList(_context.Posts, "Id", "Id");
-            return View();
-        }
-
-        // POST: Comments/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Text,PostId")] Comment comment)
-        {
-            if (ModelState.IsValid)
-            {
-                _context.Add(comment);
-                await _context.SaveChangesAsync();
-                return RedirectToAction("Details", "Posts", new { id = comment.PostId });
-            }
-            ViewData["PostId"] = new SelectList(_context.Posts, "Id", "Id", comment.PostId);
-            return View(comment);
-        }
-
-        // GET: Comments/Edit/5
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var comment = await _context.Comments.FindAsync(id);
-            if (comment == null)
-            {
-                return NotFound();
-            }
-            ViewData["PostId"] = new SelectList(_context.Posts, "Id", "Id", comment.PostId);
-            return View(comment);
-        }
-
-        // POST: Comments/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Text,PostId")] Comment comment)
-        {
-            if (id != comment.Id)
-            {
-                return NotFound();
-            }
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(comment);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!CommentExists(comment.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["PostId"] = new SelectList(_context.Posts, "Id", "Id", comment.PostId);
-            return View(comment);
-        }
-
-        // GET: Comments/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var comment = await _context.Comments
-                .Include(c => c.Post)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (comment == null)
-            {
-                return NotFound();
-            }
-
-            return View(comment);
-        }
-
-        // POST: Comments/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var comment = await _context.Comments.FindAsync(id);
-            if (comment != null)
-            {
-                _context.Comments.Remove(comment);
-            }
-
+            _context.Add(comment);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Details", "Posts", new { id = comment.PostId });
         }
-
-        private bool CommentExists(int id)
-        {
-            return _context.Comments.Any(e => e.Id == id);
-        }
+        return View(comment);
     }
 }
