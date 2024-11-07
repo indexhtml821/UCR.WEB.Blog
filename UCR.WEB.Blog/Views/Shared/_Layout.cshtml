@@ -1,5 +1,6 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -8,48 +9,101 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/UCR.WEB.Blog.styles.css" asp-append-version="true" />
 </head>
-<body>
+
+<body class="d-flex flex-column min-vh-100">
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light border-bottom box-shadow mb-3" style="background-color: #00c0f3">
-            <div class="container-fluid">
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light border-bottom box-shadow mb-3"
+            style="background-color: #00c0f3">
+            <div class="container-fluid  m-2">
                 <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
-                    <img src="~/images/navbarLogo.png" alt="Logo" style="height: 100px;">
+                    <img src="~/images/navbarLogo.png" alt="Logo" style="height: 50px;">
                 </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse"
+                    aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex top-bar-right">
                     <ul class="navbar-nav flex-grow-1 justify-content-end">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Acceso a usuarios</a>
+                        <li class="nav-item ">
+                            <a class="nav-link text-white fs-5" asp-area="" asp-controller="Account"
+                                asp-action="Login">Iniciar
+                                Sesión
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Administracion</a>
+                            <a class="nav-link text-white fs-5" asp-area="" asp-controller="Account"
+                                asp-action="Register">Registrarse</a>
                         </li>
                     </ul>
                 </div>
             </div>
         </nav>
     </header>
-    <div class="container">
+    <div class="container flex-grow-1">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
+    <footer class="footer bg-dark text-white py-3 mt-auto ">
         <div class="container">
-            &copy; Autores: 
-            
-            - Christopher Duran Aguilar 
-            - Issac 
-        </div>
+            <div class="row">
+                <div class="col-md-3 m-2 d-flex justify-content-center align-items-center">
+                    <img src="~/images/navbarLogo.png" alt="Logo" style="height: 75px;">
+                </div>
 
+                <div class="col-md-4 mb-3 mb-md-0">
+                    <h3>Información del curso</h3>
+                    <ul class="list-unstyled">
+                        <li>
+                            <span class="mr-2">📰</span>
+                            <a class="text-white text-decoration-none" href="https://www.ecci.ucr.ac.cr/cursos/ci-0137"
+                                target="_blank">
+                                Desarrollo de aplicaciones Web
+                            </a>
+                        </li>
+                        <li>
+                            <span class="mr-2">📰</span>
+                            <a class="text-white text-decoration-none"
+                                href="https://www.linkedin.com/in/brauliosolanorojas/" target="_blank">
+                                Profesor: Braulio solano
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="col-md-4">
+                    <h3>Contacto</h3>
+                    <ul class="list-unstyled">
+                        <li>
+                            <span class="mr-2">✉️</span>
+                            <a class="text-white text-decoration-none"
+                                href="mailto:christopher.duran@ucr.ac.cr?subject=Consulta%20sobre%20el%20proyecto&body=Hola,%20me%20gustaría%20hablar%20sobre%20el%20blog%20de%20la%20UCR.">
+                                christopher.duran@ucr.ac.cr
+                            </a>
+                        </li>
+                        <li>
+                            <span class="mr-2">✉️</span>
+                            <a class="text-white text-decoration-none"
+                                href="mailto:rafa.gutierrez@ucr.ac.cr?subject=Consulta%20sobre%20el%20proyecto&body=Hola,%20me%20gustaría%20hablar%20sobre%20el%20blog%20de%20la%20UCR.">
+                                rafa.gutierrez@ucr.ac.cr
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col text-center">
+                    <p class="small mb-0">© 2024 Universidad de Costa Rica - Proyecto Blog Web CI-0137</p>
+                </div>
+            </div>
+        </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
+
 </html>
