@@ -68,7 +68,7 @@ namespace UCR.WEB.Blog.Controllers
         }
 
         // GET: User/Edit/5
-        [Authorize(Roles = "Administrator") ]
+        [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> Edit(string id)
         {
             if (id == null)

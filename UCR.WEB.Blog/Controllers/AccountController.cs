@@ -27,12 +27,14 @@ public class AccountController : Controller
     [HttpGet]
     public IActionResult Register()
     {
+        ViewData["HeaderText"] = "Registro";
         return View();
     }
 
     [HttpPost]
     public async Task<IActionResult> Register(UserVM model)
     {
+        ViewData["HeaderText"] = "Registro";
         if (model.Password != model.ConfirmationKey)
         {
             ViewData["Error"] = "Passwords do not match";
@@ -49,11 +51,11 @@ public class AccountController : Controller
 
         if (ModelState.IsValid)
         {
-           await _context.User.AddAsync(user);
+            await _context.User.AddAsync(user);
             await _context.SaveChangesAsync();
         }
 
-        if(user.Id != null)return RedirectToAction("Index", "Home");
+        if (user.Id != null) return RedirectToAction("Index", "Home");
         ViewData["Error"] = "User could not be created";
 
         return View();
@@ -69,7 +71,7 @@ public class AccountController : Controller
     public async Task<IActionResult> Login(LoginVM model)
     {
 
-        User? foundUser  = await _context.User.Where(u => u.Email == model.Email && u.Password == model.Password).FirstOrDefaultAsync();
+        User? foundUser = await _context.User.Where(u => u.Email == model.Email && u.Password == model.Password).FirstOrDefaultAsync();
 
         if (foundUser == null)
         {
@@ -77,10 +79,10 @@ public class AccountController : Controller
             ViewData["Error"] = "User not found";
             return View();
         }
-        List<Claim>claims = new List<Claim>(){
+        List<Claim> claims = new List<Claim>(){
             new Claim(ClaimTypes.Name , foundUser.Name),
             new Claim(ClaimTypes.Email , foundUser.Email)
-              
+
         };
 
         ClaimsIdentity claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);

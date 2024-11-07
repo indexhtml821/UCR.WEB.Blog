@@ -23,12 +23,14 @@ namespace UCR.WEB.Blog.Controllers
         // GET: Posts
         public async Task<IActionResult> Index()
         {
+            ViewData["HeaderText"] = "Publicaciones";
             return View(await _context.Posts.ToListAsync());
         }
-       [Authorize]
+        [Authorize]
         // GET: Posts/Details/5
-        public async Task<IActionResult> Details(int? id)   
+        public async Task<IActionResult> Details(int? id)
         {
+            ViewData["HeaderText"] = "Detalles";
             if (id == null)
             {
                 return NotFound();
@@ -48,6 +50,7 @@ namespace UCR.WEB.Blog.Controllers
         // GET: Posts/Create
         public IActionResult Create()
         {
+            ViewData["HeaderText"] = "Crear un nuevo post";
             return View();
         }
 
@@ -58,6 +61,7 @@ namespace UCR.WEB.Blog.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Title,Body,UserId")] Post post)
         {
+            ViewData["HeaderText"] = "Crear";
             if (ModelState.IsValid)
             {
                 _context.Add(post);
@@ -71,6 +75,7 @@ namespace UCR.WEB.Blog.Controllers
         // GET: Posts/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
+            ViewData["HeaderText"] = "Editar el Post";
             if (id == null)
             {
                 return NotFound();
@@ -85,9 +90,9 @@ namespace UCR.WEB.Blog.Controllers
 
             var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
 
-            if (userId != post.UserId && !User.IsInRole("Administrator"))
+            if (userId != post.UserId && !User.IsInRole("Administrador"))
             {
-                return Forbid(); // El usuario no está autorizado a editar este post
+                return Forbid(); // El usuario no estï¿½ autorizado a editar este post
             }
 
             return View(post);
@@ -98,6 +103,8 @@ namespace UCR.WEB.Blog.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Body,UserId")] Post post)
         {
+            ViewData["HeaderText"] = "Editar el Post";
+
             if (id != post.Id)
             {
                 return NotFound();
@@ -114,7 +121,7 @@ namespace UCR.WEB.Blog.Controllers
 
             if (userId != existingPost.UserId && !User.IsInRole("Administrator"))
             {
-                return Forbid(); // El usuario no está autorizado a editar este post
+                return Forbid(); // El usuario no estï¿½ autorizado a editar este post
             }
 
             if (ModelState.IsValid)
@@ -147,6 +154,8 @@ namespace UCR.WEB.Blog.Controllers
         // GET: Posts/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
+            ViewData["HeaderText"] = "Eliminar el Post";
+
             if (id == null)
             {
                 return NotFound();
@@ -164,7 +173,7 @@ namespace UCR.WEB.Blog.Controllers
             // Verificar si el usuario es el autor o un administrador
             if (userId != post.UserId && !User.IsInRole("Administrator"))
             {
-                return Forbid(); // El usuario no está autorizado a ver esta página
+                return Forbid(); // El usuario no estï¿½ autorizado a ver esta pï¿½gina
             }
 
             return View(post);
@@ -175,6 +184,8 @@ namespace UCR.WEB.Blog.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            ViewData["HeaderText"] = "Eliminar el Post";
+
             var post = await _context.Posts.FindAsync(id);
             if (post != null)
             {
@@ -184,7 +195,7 @@ namespace UCR.WEB.Blog.Controllers
                 // Verificar si el usuario es el autor o un administrador
                 if (userId != post.UserId && !User.IsInRole("Administrator"))
                 {
-                    return Forbid(); // El usuario no está autorizado a eliminar este post
+                    return Forbid(); // El usuario no estï¿½ autorizado a eliminar este post
                 }
 
                 _context.Posts.Remove(post);
