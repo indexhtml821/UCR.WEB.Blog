@@ -8,7 +8,7 @@ using UCR.WEB.Blog.Models.Data;
 namespace UCR.WEB.Blog.Controllers;
 
 [Authorize]
-public class CommentsController:Controller
+public class CommentsController : Controller
 {
     private readonly BlogDbContext _context;
 
