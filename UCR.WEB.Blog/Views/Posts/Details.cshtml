@@ -1,9 +1,5 @@
 @model UCR.WEB.Blog.Models.Post
 
-@{
-    ViewData["Title"] = "Detalles del Post";
-}
-
 <div class="container my-5">
     <div class="row justify-content-center">
         <div class="col-md-10 col-lg-8">
@@ -37,30 +33,30 @@
 
                 <hr class="my-4">
                 @* Poner los comentarios una vez creados *@
-                <div class="mb-4">
-                    <h5 class="text-primary">Comentarios</h5>
-                    <ul class="list-unstyled">
-                        <li>
-                            <div class="media mb-3">
-                                <img src="https://via.placeholder.com/50" class="mr-3 rounded-circle" alt="Usuario">
-                                <div class="media-body">
-                                    <h6 class="mt-0">Usuario 1</h6>
-                                    <p class="text-muted">¡Este es un comentario de ejemplo!</p>
-                                </div>
+                @if (Model.Comments.Any())
+                {
+                    <div class="mb-4">
+                        <h5 class="text-primary">Comentarios</h5>
+                        @foreach (var comment in Model.Comments)
+                        {
+                            <div>
+                                <p>@comment.Text</p>
                             </div>
-                        </li>
-                        <li>
-                            <div class="media mb-3">
-                                <img src="https://via.placeholder.com/50" class="mr-3 rounded-circle" alt="Usuario">
-                                <div class="media-body">
-                                    <h6 class="mt-0">Usuario 2</h6>
-                                    <p class="text-muted">¡Interesante perspectiva! Me gustaría saber más.</p>
-                                </div>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
+                        }
 
+                    </div>
+                }
+                else
+                {
+                    <div class="mb-4">
+                        <h5 class="text-primary">Muchos Comentarios</h5>
+                        <form asp-action="AddComment" method="post">
+                            <input name="postId" value="@Model.Id" />
+                            <textarea name="commentText" required placeholder="Escribe tu comentario aquí..."></textarea>
+                            <button type="submit">Agregar Comentario</button>
+                        </form>
+                    </div>
+                }
                 <div class="text-center mt-5">
                     <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn btn-primary btn-lg mx-3 px-5 py-3">Editar
                         Post</a>
