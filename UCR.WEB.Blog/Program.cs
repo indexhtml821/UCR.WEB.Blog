@@ -42,6 +42,50 @@ using (var scope = app.Services.CreateScope())
             await roleManager.CreateAsync(new IdentityRole(role));
         }
     }
+
+
+
+
+
+    var normEmail = userManager.NormalizeEmail("admin@gmail.com");
+    var adminUser = await userManager.FindByEmailAsync(normEmail);
+
+    if (adminUser == null)
+    {
+        // Create a new admin user if one doesn't exist
+        adminUser = new User
+        {
+            UserName = "admin@gmail.com",
+            Email = "admin@gmail.com",
+            Name = "admin", // You can change this as needed
+            Password= "@Admin17"
+        };
+
+        var createResult = await userManager.CreateAsync(adminUser, "@Admin17"); // Set a default password
+
+        if (createResult.Succeeded)
+        {
+            // Assign the Administrator role
+            await userManager.AddToRoleAsync(adminUser, "Administrator");
+            Console.WriteLine($"Admin user created and assigned 'Administrator' role: {adminUser.Email}");
+        }
+        else
+        {
+            Console.WriteLine("Error creating admin user: " + string.Join(", ", createResult.Errors.Select(e => e.Description)));
+        }
+    }
+    else
+    {
+        Console.WriteLine($"Admin user already exists: {adminUser.Email}");
+        // Check if the user already has the Administrator role
+        if (!await userManager.IsInRoleAsync(adminUser, "Administrator"))
+        {
+            await userManager.AddToRoleAsync(adminUser, "Administrator");
+            Console.WriteLine($"Assigned 'Administrator' role to existing user: {adminUser.Email}");
+        }
+    }
+
+
 }
 
 

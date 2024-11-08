@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 using UCR.WEB.Blog.Models;
 using UCR.WEB.Blog.Models.Data;
 
@@ -64,9 +65,15 @@ namespace UCR.WEB.Blog.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Title,Body,UserId")] Post post)
+        public async Task<IActionResult> Create([Bind("Id,Title,Body")] Post post)
         {
+            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             ViewData["HeaderText"] = "Crear";
+            post.UserId = userId;
+            post.Category = "general";
+            _context.Add(post);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
             if (ModelState.IsValid)
             {
                 _context.Add(post);
@@ -78,6 +85,7 @@ namespace UCR.WEB.Blog.Controllers
 
         // GET: Posts/Edit/5
         // GET: Posts/Edit/5
+        [Authorize]
         public async Task<IActionResult> Edit(int? id)
         {
             ViewData["HeaderText"] = "Editar el Post";
@@ -95,8 +103,11 @@ namespace UCR.WEB.Blog.Controllers
 
             var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
 
-            if (userId != post.UserId && !User.IsInRole("Administrador"))
-            {
+            Console.WriteLine($"userId: {userId}, post.UserId: {post.UserId}, IsInRole(Admin): {User.IsInRole("Administrator")}");
+
+
+           if (userId != post.UserId && !User.IsInRole("Administrator"))
+           {
                 return Forbid(); // El usuario no est� autorizado a editar este post
             }
 

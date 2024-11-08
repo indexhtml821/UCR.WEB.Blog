@@ -1,65 +1,78 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using UCR.WEB.Blog.Models;
-using UCR.WEB.Blog.Models.Data;
 using UCR.WEB.Blog.ViewModels;
-using System.Security.Claims;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
+using System.Threading.Tasks;
+using System.Security.Claims;
 
-
-namespace UCR.WEB.Blog.Controllers;
-
-public class AccountController : Controller
+namespace UCR.WEB.Blog.Controllers
 {
-    private readonly BlogDbContext _context;
-    public AccountController(BlogDbContext context)
+    public class AccountController : Controller
     {
-        _context = context;
-    }
+        private readonly SignInManager<User> _signInManager;
+        private readonly UserManager<User> _userManager;
+
+        public AccountController(UserManager<User> userManager, SignInManager<User> signInManager)
+        {
+            _userManager = userManager;
+            _signInManager = signInManager;
+        }
 
     public IActionResult Index()
     {
         return RedirectToAction("Index", "Home");
     }
 
-    [HttpGet]
-    public IActionResult Register()
-    {
-        ViewData["HeaderText"] = "Registro";
-        return View();
-    }
-
-    [HttpPost]
-    public async Task<IActionResult> Register(UserVM model)
-    {
-        ViewData["HeaderText"] = "Registro";
-        if (model.Password != model.ConfirmationKey)
+        [HttpGet]
+        public IActionResult Register()
         {
-            ViewData["Error"] = "Passwords do not match";
+            ViewData["HeaderText"] = "Registro";
             return View();
         }
 
-        User user = new User
+        [HttpPost]
+        public async Task<IActionResult> Register(UserVM model)
         {
-            Name = model.Name,
-            Email = model.Email,
-            Password = model.Password,
-            Role = "Author"
-        };
+            ViewData["HeaderText"] = "Registro";
 
-        if (ModelState.IsValid)
-        {
-            await _context.User.AddAsync(user);
-            await _context.SaveChangesAsync();
+            if (model.Password != model.ConfirmationKey)
+            {
+                ViewData["Error"] = "Passwords do not match";
+                return View();
+            }
+
+            var user = new User
+            {
+                UserName = model.Email, // Identity requires UserName to be set
+                Email = model.Email,
+                Name = model.Name,
+            //    Role = "Author", // Optional, may need to handle roles differently in ASP.NET Identity
+                Password = model.Password
+            };
+
+            if (ModelState.IsValid)
+            {
+                // Create the user using UserManager
+                var result = await _userManager.CreateAsync(user, model.Password);
+
+                if (result.Succeeded)
+                {
+                    // Optionally add the role to the user if using roles
+                    await _userManager.AddToRoleAsync(user, "Author");
+
+                    return RedirectToAction("Index", "Home");
+                }
+
+                // Add errors if user creation failed
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error.Description);
+                }
+            }
+
+            ViewData["Error"] = "User could not be created";
+            return View();
         }
-
-        if (user.Id != null) return RedirectToAction("Index", "Home");
-        ViewData["Error"] = "User could not be created";
-
-        return View();
-    }
 
     [HttpGet]
     public IActionResult Login()
@@ -68,36 +81,29 @@ public class AccountController : Controller
         return View();
     }
 
-    [HttpPost]
-    public async Task<IActionResult> Login(LoginVM model)
-    {
-        ViewData["HeaderText"] = "Iniciar Sesión";
-        User? foundUser = await _context.User.Where(u => u.Email == model.Email && u.Password == model.Password).FirstOrDefaultAsync();
 
-        if (foundUser == null)
+        [HttpPost]
+        public async Task<IActionResult> Login(LoginVM model)
         {
-            ViewData["Error"] = "User not found";
+            ViewData["HeaderText"] = "Iniciar Sesión";
+            // Verify if the user exists
+            var foundUser = await _userManager.FindByEmailAsync(model.Email);
+            if (foundUser == null)
+            {
+                ViewData["Error"] = "User not found";
+                return View();
+            }
+
+            // Log in using SignInManager
+            var result = await _signInManager.PasswordSignInAsync(foundUser, model.Password, isPersistent: true, lockoutOnFailure: false);
+
+            if (result.Succeeded)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+
+            ViewData["Error"] = "Invalid login attempt";
             return View();
         }
-        List<Claim> claims = new List<Claim>(){
-            new Claim(ClaimTypes.Name , foundUser.Name),
-            new Claim(ClaimTypes.Email , foundUser.Email)
-        };
-
-        ClaimsIdentity claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-        AuthenticationProperties properties = new AuthenticationProperties
-        {
-            AllowRefresh = true,
-        };
-
-        await HttpContext.SignInAsync(
-           IdentityConstants.ApplicationScheme, // Correct scheme for ASP.NET Core Identity
-           new ClaimsPrincipal(claimsIdentity),
-           properties);
-
-        Console.WriteLine("Is Authenticated: " + User.Identity.IsAuthenticated);
-
-        return RedirectToAction("Index", "Home");
     }
-
 }
