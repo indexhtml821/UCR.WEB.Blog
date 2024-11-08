@@ -13,13 +13,14 @@
                         <img src="@post.ImageDataUrl" alt="Imagen del Post" class="rounded me-3"
                             style="width: 150px; height: 150px; object-fit: cover;" />
                     </div>
-                }                      
-                        <div class="flex-grow-1">
+                }
+                        <div class="flex-grow-1" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%">
                             <h3 class="card-title mb-3">@post.Title</h3>
 
                             <p class="card-text text-muted" style="font-size: 1rem;">@post.Body</p>
 
                             <div class="text-end mt-3">
+                                <a asp-action="Details" asp-controller="Posts" asp-route-id="@post.Id" class="btn btn-outline-primary">Leer más</a>
                                 <button class="btn btn-outline-primary" data-bs-toggle="collapse"
                                     data-bs-target="#collapseComments_@post.Id" aria-expanded="false"
                                     aria-controls="collapseComments_@post.Id">
