@@ -4,7 +4,6 @@ using UCR.WEB.Blog.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using System.Threading.Tasks;
 using System.Security.Claims;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
 
 namespace UCR.WEB.Blog.Controllers
@@ -85,13 +84,36 @@ namespace UCR.WEB.Blog.Controllers
 
 
         [HttpPost]
+        public async Task<IActionResult> Login(LoginVM model)
+        {
+            ViewData["HeaderText"] = "Iniciar Sesión";
+            // Verify if the user exists
+            var foundUser = await _userManager.FindByEmailAsync(model.Email);
+            if (foundUser == null)
+            {
+                ViewData["Error"] = "User not found";
+                return View();
+            }
+
+            // Log in using SignInManager
+            var result = await _signInManager.PasswordSignInAsync(foundUser, model.Password, isPersistent: true, lockoutOnFailure: false);
+
+            if (result.Succeeded)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+
+            ViewData["Error"] = "Invalid login attempt";
+            return View();
+        }
+
+
+        [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync(IdentityConstants.ApplicationScheme);
             return RedirectToAction("Index", "Home");
         }
-
-
     }
 }
