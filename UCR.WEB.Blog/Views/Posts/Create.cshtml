@@ -1,18 +1,14 @@
 @model UCR.WEB.Blog.Models.Post
 
-@{
-    ViewData["Title"] = "Create Post";
-}
 
 <div class="container my-5">
     <div class="text-center mb-4">
         <h2>Create a New Post</h2>
     </div>
 
-    <!-- Image Section with Buttons -->
     <div class="d-flex justify-content-center align-items-center bg-light p-4 rounded mb-4">
         <button class="btn btn-danger m-2" title="Eliminar imagen" onclick="removeImage()">
-            ➖
+            -
         </button>
 
         <div id="imageCarousel" class="carousel slide d-inline-block" data-bs-ride="carousel" style="width: 300px;">
@@ -42,7 +38,6 @@
         </button>
     </div>
 
-    <!-- Form Section -->
     <div class="bg-light p-4 rounded shadow-sm">
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
@@ -65,7 +60,9 @@
                 <input type="submit" value="Create" class="btn btn-primary" />
             </div>
         </form>
+
     </div>
+
 </div>
 
 @section Scripts {

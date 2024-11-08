@@ -17,10 +17,10 @@ namespace UCR.WEB.Blog.Controllers
             _signInManager = signInManager;
         }
 
-        public IActionResult Index()
-        {
-            return View();
-        }
+    public IActionResult Index()
+    {
+        return RedirectToAction("Index", "Home");
+    }
 
         [HttpGet]
         public IActionResult Register()
@@ -73,25 +73,28 @@ namespace UCR.WEB.Blog.Controllers
             return View();
         }
 
-        [HttpGet]
-        public IActionResult Login()
+    [HttpGet]
+    public IActionResult Login()
+    {
+        ViewData["HeaderText"] = "Iniciar Sesión";
+        return View();
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Login(LoginVM model)
+    {
+        ViewData["HeaderText"] = "Iniciar Sesión";
+        User? foundUser = await _context.User.Where(u => u.Email == model.Email && u.Password == model.Password).FirstOrDefaultAsync();
+
+        if (foundUser == null)
         {
+            ViewData["Error"] = "User not found";
             return View();
         }
-
-        [HttpPost]
-        public async Task<IActionResult> Login(LoginVM model)
-        {
-            // Verify if the user exists
-            var foundUser = await _userManager.FindByEmailAsync(model.Email);
-            if (foundUser == null)
-            {
-                ViewData["Error"] = "User not found";
-                return View();
-            }
-
-            // Log in using SignInManager
-            var result = await _signInManager.PasswordSignInAsync(foundUser, model.Password, isPersistent: true, lockoutOnFailure: false);
+        List<Claim> claims = new List<Claim>(){
+            new Claim(ClaimTypes.Name , foundUser.Name),
+            new Claim(ClaimTypes.Email , foundUser.Email)
+        };
 
             if (result.Succeeded)
             {

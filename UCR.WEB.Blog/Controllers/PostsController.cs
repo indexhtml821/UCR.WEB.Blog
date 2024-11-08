@@ -1,10 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using UCR.WEB.Blog.Models;
 using UCR.WEB.Blog.Models.Data;
@@ -24,20 +19,30 @@ namespace UCR.WEB.Blog.Controllers
         public async Task<IActionResult> Index()
         {
             ViewData["HeaderText"] = "Publicaciones";
-            return View(await _context.Posts.ToListAsync());
+
+            // Cargar los posts y sus comentarios asociados
+            var postsWithComments = await _context.Posts
+                .Include(p => p.Comments)  // Incluir los comentarios asociados
+                .ToListAsync();
+
+            return View(postsWithComments);
         }
+
         [Authorize]
         // GET: Posts/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             ViewData["HeaderText"] = "Detalles";
+
             if (id == null)
             {
                 return NotFound();
             }
 
             var post = await _context.Posts
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .Include(p => p.Comments)  // Cargar los comentarios del post
+                .FirstOrDefaultAsync(p => p.Id == id);
+
             if (post == null)
             {
                 return NotFound();
@@ -209,6 +214,29 @@ namespace UCR.WEB.Blog.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddComment(int postId, string commentText)
+        {
+            var post = await _context.Posts.FindAsync(postId);
+
+            if (post == null)
+            {
+                return NotFound();
+            }
+
+            var comment = new Comment
+            {
+                Text = commentText,
+                PostId = postId,
+                Post = post
+            };
+
+            _context.Comments.Add(comment);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Details), new { id = postId });
+        }
 
         private bool PostExists(int id)
         {
