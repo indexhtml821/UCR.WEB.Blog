@@ -1,10 +1,11 @@
 @model UCR.WEB.Blog.Models.Post
-
+@using System.Security.Claims
 
 <div class="container my-5">
     <div class="bg-light p-4 rounded shadow-sm">
         <form asp-action="Create" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input asp-for="UserId" type="hidden" class="form-control" value="@User.Identity.Name" />
             <div class="form-group">
                 <label asp-for="Title" class="control-label"></label>
                 <input asp-for="Title" class="form-control" />
@@ -31,9 +32,3 @@
         </form>
     </div>
 </div>
-
-@section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
-}
