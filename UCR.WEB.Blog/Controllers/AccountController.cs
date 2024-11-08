@@ -3,6 +3,7 @@ using UCR.WEB.Blog.Models;
 using UCR.WEB.Blog.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using System.Threading.Tasks;
+using System.Security.Claims;
 
 namespace UCR.WEB.Blog.Controllers
 {
@@ -45,7 +46,7 @@ namespace UCR.WEB.Blog.Controllers
                 UserName = model.Email, // Identity requires UserName to be set
                 Email = model.Email,
                 Name = model.Name,
-                Role = "Author", // Optional, may need to handle roles differently in ASP.NET Identity
+            //    Role = "Author", // Optional, may need to handle roles differently in ASP.NET Identity
                 Password = model.Password
             };
 
@@ -80,21 +81,21 @@ namespace UCR.WEB.Blog.Controllers
         return View();
     }
 
-    [HttpPost]
-    public async Task<IActionResult> Login(LoginVM model)
-    {
-        ViewData["HeaderText"] = "Iniciar Sesión";
-        User? foundUser = await _context.User.Where(u => u.Email == model.Email && u.Password == model.Password).FirstOrDefaultAsync();
 
-        if (foundUser == null)
+        [HttpPost]
+        public async Task<IActionResult> Login(LoginVM model)
         {
-            ViewData["Error"] = "User not found";
-            return View();
-        }
-        List<Claim> claims = new List<Claim>(){
-            new Claim(ClaimTypes.Name , foundUser.Name),
-            new Claim(ClaimTypes.Email , foundUser.Email)
-        };
+            ViewData["HeaderText"] = "Iniciar Sesión";
+            // Verify if the user exists
+            var foundUser = await _userManager.FindByEmailAsync(model.Email);
+            if (foundUser == null)
+            {
+                ViewData["Error"] = "User not found";
+                return View();
+            }
+
+            // Log in using SignInManager
+            var result = await _signInManager.PasswordSignInAsync(foundUser, model.Password, isPersistent: true, lockoutOnFailure: false);
 
             if (result.Succeeded)
             {
