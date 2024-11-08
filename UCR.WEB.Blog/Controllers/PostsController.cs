@@ -59,23 +59,27 @@ namespace UCR.WEB.Blog.Controllers
             ViewData["HeaderText"] = "Crear un nuevo post";
             return View();
         }
-
-        // POST: Posts/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Title,Body")] Post post)
+
+        public async Task<IActionResult> Create(Post post, IFormFile ImageData)
         {
             string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            ViewData["HeaderText"] = "Crear";
+            ViewData["HeaderText"] = "Crear Publicación";
             post.UserId = userId;
-            post.Category = "general";
             _context.Add(post);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
             if (ModelState.IsValid)
             {
+                if (ImageData != null && ImageData.Length > 0)
+                {
+                    using (var memoryStream = new MemoryStream())
+                    {
+                        await ImageData.CopyToAsync(memoryStream);
+                        post.ImageData = memoryStream.ToArray();
+                    }
+                }
+
                 _context.Add(post);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -106,8 +110,8 @@ namespace UCR.WEB.Blog.Controllers
             Console.WriteLine($"userId: {userId}, post.UserId: {post.UserId}, IsInRole(Admin): {User.IsInRole("Administrator")}");
 
 
-           if (userId != post.UserId && !User.IsInRole("Administrator"))
-           {
+            if (userId != post.UserId && !User.IsInRole("Administrator"))
+            {
                 return Forbid(); // El usuario no est� autorizado a editar este post
             }
 
