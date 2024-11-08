@@ -17,19 +17,29 @@ namespace UCR.WEB.Blog.Controllers
             _logger = logger;
         }
 
-        public IActionResult Index()
+        public IActionResult Index(int page = 1)
         {
-            var posts = _context.Posts.Include(p => p.Comments).ToList();
-            var users = _context.Users.ToList();
+            int pageSize = 5; 
+            int totalPosts = _context.Posts.Count(); 
+            var posts = _context.Posts
+                                .Include(p => p.Comments) 
+                                .Skip((page - 1) * pageSize)
+                                .Take(pageSize) 
+                                .ToList();
+            var users = _context.Users.ToList(); 
+            var totalPages = (int)Math.Ceiling(totalPosts / (double)pageSize); // Calcula el total de páginas
             var viewModel = new PostUserModel
             {
                 Posts = posts,
                 Users = users
             };
-
+            ViewData["CurrentPage"] = page;
+            ViewData["TotalPages"] = totalPages;
             ViewData["HeaderText"] = "Diario Web";
+
             return View(viewModel);
         }
+
 
         public IActionResult Privacy()
         {

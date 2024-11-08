@@ -2,44 +2,8 @@
 
 
 <div class="container my-5">
-    <div class="text-center mb-4">
-        <h2>Create a New Post</h2>
-    </div>
-
-    <div class="d-flex justify-content-center align-items-center bg-light p-4 rounded mb-4">
-        <button class="btn btn-danger m-2" title="Eliminar imagen" onclick="removeImage()">
-            -
-        </button>
-
-        <div id="imageCarousel" class="carousel slide d-inline-block" data-bs-ride="carousel" style="width: 300px;">
-            <div class="carousel-inner">
-                <div class="carousel-item active">
-                    <img src="src=" ~/images/navbarLogo.png" class="d-block w-100 rounded" alt="Imagen 1">
-                </div>
-                <div class="carousel-item">
-                    <div class="bg-secondary rounded" style="width: 100%; height: 100px;"></div>
-                </div>
-                <div class="carousel-item">
-                    <div class="bg-secondary rounded" style="width: 100%; height: 100px;"></div>
-                </div>
-            </div>
-            <button class="carousel-control-prev" type="button" data-bs-target="#imageCarousel" data-bs-slide="prev">
-                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Previous</span>
-            </button>
-            <button class="carousel-control-next" type="button" data-bs-target="#imageCarousel" data-bs-slide="next">
-                <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Next</span>
-            </button>
-        </div>
-
-        <button class="btn btn-success m-2" title="Agregar imagen" onclick="addImage()">
-            +
-        </button>
-    </div>
-
     <div class="bg-light p-4 rounded shadow-sm">
-        <form asp-action="Create">
+        <form asp-action="Create" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
                 <label asp-for="Title" class="control-label"></label>
@@ -48,21 +12,24 @@
             </div>
             <div class="form-group">
                 <label asp-for="Body" class="control-label"></label>
-                <input asp-for="Body" class="form-control" />
+                <textarea asp-for="Body" class="form-control"></textarea>
                 <span asp-validation-for="Body" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="UserId" class="control-label"></label>
-                <input asp-for="UserId" class="form-control" />
-                <span asp-validation-for="UserId" class="text-danger"></span>
+                <label asp-for="Category" class="control-label"></label>
+                <input asp-for="Category" class="form-control" />
+                <span asp-validation-for="Category" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
+                <label for="ImageData" class="control-label">Imagen</label>
+                <input type="file" name="ImageData" class="form-control" />
+                <span asp-validation-for="ImageData" class="text-danger"></span>
+            </div>
+            <div class="form-group mt-3">
+                <input type="submit" value="Crear Publicación" class="btn btn-primary" />
             </div>
         </form>
-
     </div>
-
 </div>
 
 @section Scripts {
