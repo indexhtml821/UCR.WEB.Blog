@@ -39,6 +39,14 @@
                                     Posts
                                 </a>
                             </li>
+
+                            <li class="nav-item">
+                                <form asp-area="" asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                                    <button type="submit" class="nav-link text-white fs-5 btn btn-link" style="text-decoration: none;">
+                                        Logout
+                                    </button>
+                                </form>
+                            </li>
                         }
                         else
                         {
