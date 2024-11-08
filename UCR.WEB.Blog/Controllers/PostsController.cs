@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 using UCR.WEB.Blog.Models;
 using UCR.WEB.Blog.Models.Data;
 
@@ -60,30 +61,25 @@ namespace UCR.WEB.Blog.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
+
         public async Task<IActionResult> Create(Post post, IFormFile ImageData)
         {
+            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             ViewData["HeaderText"] = "Crear Publicación";
-
+            post.UserId = userId;
+            _context.Add(post);
+            await _context.SaveChangesAsync();
             if (ModelState.IsValid)
             {
-                if (@User.Identity.Name != null)
-                {
-                    post.UserId = User.Identity.Name;  
-                }
-                else
-                {
-                    post.UserId = "";
-                }
-
                 if (ImageData != null && ImageData.Length > 0)
                 {
                     using (var memoryStream = new MemoryStream())
                     {
                         await ImageData.CopyToAsync(memoryStream);
-                        post.ImageData = memoryStream.ToArray();  
+                        post.ImageData = memoryStream.ToArray();
                     }
                 }
- 
+
                 _context.Add(post);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -93,6 +89,7 @@ namespace UCR.WEB.Blog.Controllers
 
         // GET: Posts/Edit/5
         // GET: Posts/Edit/5
+        [Authorize]
         public async Task<IActionResult> Edit(int? id)
         {
             ViewData["HeaderText"] = "Editar el Post";
@@ -110,7 +107,10 @@ namespace UCR.WEB.Blog.Controllers
 
             var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
 
-            if (userId != post.UserId && !User.IsInRole("Administrador"))
+            Console.WriteLine($"userId: {userId}, post.UserId: {post.UserId}, IsInRole(Admin): {User.IsInRole("Administrator")}");
+
+
+            if (userId != post.UserId && !User.IsInRole("Administrator"))
             {
                 return Forbid(); // El usuario no est� autorizado a editar este post
             }
