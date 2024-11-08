@@ -35,9 +35,21 @@
 
                 @if (ViewData["Error"] != null)
                 {
-                    <div class="alert alert-danger mt-3" role="alert">
+                <div id="errorAlert" class="alert alert-danger position-fixed top-5 end-0 m-3" role="alert"
+                    style="top: 250px; right: 40px; z-index: 1000;">
                         @ViewData["Error"]
-                    </div>
+                </div>
+
+                <script>
+                    setTimeout(function () {
+                        const alert = document.getElementById('errorAlert');
+                        if (alert) {
+                            alert.style.transition = 'opacity 0.5s';
+                            alert.style.opacity = '0';
+                            setTimeout(() => alert.remove(), 500);
+                        }
+                    }, 2000); 
+                </script>
                 }
             </form>
         </div>
