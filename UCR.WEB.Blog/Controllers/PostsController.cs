@@ -16,6 +16,36 @@ namespace UCR.WEB.Blog.Controllers
             _context = context;
         }
 
+
+
+        [HttpGet("posts/user/{userName}")]
+        public IActionResult PostsByUserName(string userName)
+        {
+            // Obtener el usuario con el nombre especificado
+            var user = _context.Users.FirstOrDefault(u => u.Name == userName);
+            if (user == null)
+            {
+                return NotFound(); // En caso de que el usuario no exista
+            }
+
+            // Filtrar los posts que pertenecen al usuario encontrado
+            var posts = _context.Posts
+                                .Include(p => p.Comments) // Incluye los comentarios si es necesario
+                                .Where(p => p.UserId == user.Id) // Filtra por UserId del usuario
+                                .ToList();
+
+            // Crear un modelo básico con solo los posts del usuario
+            var model = new PostUserModel
+            {
+                Posts = posts,
+                Users = new List<User> { user } // Puedes eliminar esto si no quieres mostrarlo
+            };
+
+            // Renderizar la vista 'PostsByUser' con los posts del usuario seleccionado
+            return View("PostsByUser", model);
+        }
+
+
         // GET: Posts
         public async Task<IActionResult> Index()
         {

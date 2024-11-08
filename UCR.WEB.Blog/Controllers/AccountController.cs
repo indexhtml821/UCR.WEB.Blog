@@ -4,6 +4,7 @@ using UCR.WEB.Blog.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using System.Threading.Tasks;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
 
 namespace UCR.WEB.Blog.Controllers
 {
@@ -104,6 +105,15 @@ namespace UCR.WEB.Blog.Controllers
 
             ViewData["Error"] = "Invalid login attempt";
             return View();
+        }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync(IdentityConstants.ApplicationScheme);
+            return RedirectToAction("Index", "Home");
         }
     }
 }
