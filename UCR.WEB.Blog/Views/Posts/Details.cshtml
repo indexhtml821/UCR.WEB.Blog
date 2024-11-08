@@ -3,12 +3,23 @@
 <div class="container my-5">
     <div class="row justify-content-center">
         <div class="col-md-10 col-lg-8">
-            <div class="text-center mb-5">
-                <p class="lead text-muted">Aquí puedes ver toda la información detallada del post seleccionado</p>
-            </div>
-
             <div class="bg-light p-5 rounded-3 shadow-lg">
+
+                @if (Model.ImageDataUrl != null)
+                {
+                    <div class="text-center mb-4">
+                        <img src="@Model.ImageDataUrl" alt="Imagen del Post" class="img-fluid rounded"
+                            style="max-width: 100%; height: auto;" />
+                    </div>
+                }
+
                 <dl class="row mb-4">
+                    <dt class="col-sm-3 font-weight-bold text-secondary">
+                        @Html.DisplayNameFor(model => model.Id)
+                    </dt>
+                    <dd class="col-sm-9 text-break">
+                        <strong class="text-dark">@Html.DisplayFor(model => model.Id)</strong>
+                    </dd>
                     <dt class="col-sm-3 font-weight-bold text-secondary">
                         @Html.DisplayNameFor(model => model.Title)
                     </dt>
@@ -29,10 +40,15 @@
                     <dd class="col-sm-9 text-break">
                         <span class="badge bg-info">@Html.DisplayFor(model => model.UserId)</span>
                     </dd>
+                    <dt class="col-sm-3 font-weight-bold text-secondary">
+                        @Html.DisplayNameFor(model => model.Category)
+                    </dt>
+                    <dd class="col-sm-9 text-break">
+                        <span class="badge bg-info">@Html.DisplayFor(model => model.Category)</span>
+                    </dd>
                 </dl>
 
                 <hr class="my-4">
-                @* Poner los comentarios una vez creados *@
                 @if (Model.Comments.Any())
                 {
                     <div class="mb-4">
@@ -43,24 +59,16 @@
                                 <p>@comment.Text</p>
                             </div>
                         }
+                    </div>
+                }
 
-                    </div>
-                }
-                else
-                {
-                    <div class="mb-4">
-                        <h5 class="text-primary">Muchos Comentarios</h5>
-                        <form asp-action="AddComment" method="post">
-                            <input name="postId" value="@Model.Id" />
-                            <textarea name="commentText" required placeholder="Escribe tu comentario aquí..."></textarea>
-                            <button type="submit">Agregar Comentario</button>
-                        </form>
-                    </div>
-                }
                 <div class="text-center mt-5">
-                    <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn btn-primary btn-lg mx-3 px-5 py-3">Editar
-                        Post</a>
-                    <a asp-action="Index" class="btn btn-secondary btn-lg mx-3 px-5 py-3">Volver a la lista</a>
+                    <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn btn-primary mx-3 px-5 py-3">
+                        Editar Post
+                    </a>
+                    <a asp-action="Index" class="btn btn-secondary mx-3 px-5 py-3">
+                        Volver a la lista
+                    </a>
                 </div>
             </div>
         </div>

@@ -21,9 +21,8 @@ namespace UCR.WEB.Blog.Controllers
         {
             ViewData["HeaderText"] = "Publicaciones";
 
-            // Cargar los posts y sus comentarios asociados
             var postsWithComments = await _context.Posts
-                .Include(p => p.Comments)  // Incluir los comentarios asociados
+                .Include(p => p.Comments)
                 .ToListAsync();
 
             return View(postsWithComments);
@@ -41,7 +40,7 @@ namespace UCR.WEB.Blog.Controllers
             }
 
             var post = await _context.Posts
-                .Include(p => p.Comments)  // Cargar los comentarios del post
+                .Include(p => p.Comments)
                 .FirstOrDefaultAsync(p => p.Id == id);
 
             if (post == null)
@@ -56,19 +55,18 @@ namespace UCR.WEB.Blog.Controllers
         // GET: Posts/Create
         public IActionResult Create()
         {
-            ViewData["HeaderText"] = "Crear un nuevo post";
+            ViewData["HeaderText"] = "Crear nueva publicación";
             return View();
         }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-
         public async Task<IActionResult> Create(Post post, IFormFile ImageData)
         {
             string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             ViewData["HeaderText"] = "Crear Publicación";
             post.UserId = userId;
-            _context.Add(post);
-            await _context.SaveChangesAsync();
+
             if (ModelState.IsValid)
             {
                 if (ImageData != null && ImageData.Length > 0)
@@ -79,7 +77,6 @@ namespace UCR.WEB.Blog.Controllers
                         post.ImageData = memoryStream.ToArray();
                     }
                 }
-
                 _context.Add(post);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -88,11 +85,10 @@ namespace UCR.WEB.Blog.Controllers
         }
 
         // GET: Posts/Edit/5
-        // GET: Posts/Edit/5
         [Authorize]
         public async Task<IActionResult> Edit(int? id)
         {
-            ViewData["HeaderText"] = "Editar el Post";
+            ViewData["HeaderText"] = "Editar Publicación";
             if (id == null)
             {
                 return NotFound();
@@ -107,51 +103,54 @@ namespace UCR.WEB.Blog.Controllers
 
             var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
 
-            Console.WriteLine($"userId: {userId}, post.UserId: {post.UserId}, IsInRole(Admin): {User.IsInRole("Administrator")}");
-
-
             if (userId != post.UserId && !User.IsInRole("Administrator"))
             {
-                return Forbid(); // El usuario no est� autorizado a editar este post
+                return Forbid();
             }
 
             return View(post);
         }
 
-        // POST: Posts/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Body,UserId")] Post post)
+        public async Task<IActionResult> Edit(int id, Post post, IFormFile? ImageData)
         {
-            ViewData["HeaderText"] = "Editar el Post";
+            ViewData["HeaderText"] = "Editar Publicación";
 
             if (id != post.Id)
             {
                 return NotFound();
             }
 
-            // Verificar que el usuario actual es el autor o un administrador antes de proceder
-            var existingPost = await _context.Posts.AsNoTracking().FirstOrDefaultAsync(p => p.Id == id);
+            var existingPost = await _context.Posts.FirstOrDefaultAsync(p => p.Id == id);
             if (existingPost == null)
             {
                 return NotFound();
             }
 
-            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             if (userId != existingPost.UserId && !User.IsInRole("Administrator"))
             {
-                return Forbid(); // El usuario no est� autorizado a editar este post
+                return Forbid();
             }
 
             if (ModelState.IsValid)
             {
                 try
                 {
-                    // Asegurarse de no modificar el UserId
-                    post.UserId = existingPost.UserId;
+                    existingPost.Title = post.Title;
+                    existingPost.Body = post.Body;
+                    existingPost.Category = post.Category;
 
-                    _context.Update(post);
+                    if (ImageData != null && ImageData.Length > 0)
+                    {
+                        using (var memoryStream = new MemoryStream())
+                        {
+                            await ImageData.CopyToAsync(memoryStream);
+                            existingPost.ImageData = memoryStream.ToArray();
+                        }
+                    }
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
@@ -165,16 +164,17 @@ namespace UCR.WEB.Blog.Controllers
                         throw;
                     }
                 }
+
                 return RedirectToAction(nameof(Index));
             }
+
             return View(post);
         }
 
         // GET: Posts/Delete/5
-        // GET: Posts/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            ViewData["HeaderText"] = "Eliminar el Post";
+            ViewData["HeaderText"] = "Eliminar Publicación";
 
             if (id == null)
             {
@@ -186,14 +186,10 @@ namespace UCR.WEB.Blog.Controllers
             {
                 return NotFound();
             }
-
-            // Obtener el UserId del usuario actual
             var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-
-            // Verificar si el usuario es el autor o un administrador
             if (userId != post.UserId && !User.IsInRole("Administrator"))
             {
-                return Forbid(); // El usuario no est� autorizado a ver esta p�gina
+                return Forbid();
             }
 
             return View(post);
@@ -209,13 +205,10 @@ namespace UCR.WEB.Blog.Controllers
             var post = await _context.Posts.FindAsync(id);
             if (post != null)
             {
-                // Obtener el UserId del usuario actual
                 var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-
-                // Verificar si el usuario es el autor o un administrador
                 if (userId != post.UserId && !User.IsInRole("Administrator"))
                 {
-                    return Forbid(); // El usuario no est� autorizado a eliminar este post
+                    return Forbid();
                 }
 
                 _context.Posts.Remove(post);

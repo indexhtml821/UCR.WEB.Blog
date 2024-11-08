@@ -2,7 +2,11 @@
 
 public class Post
 {
-    public Post() { Comments = new List<Comment>(); }
+    public Post()
+    {
+        Comments = new List<Comment>();
+    }
+
     public int Id { get; set; }
     public string Title { get; set; }
     public string Body { get; set; }
@@ -10,4 +14,7 @@ public class Post
     public string UserId { get; set; }
     public byte[]? ImageData { get; set; }
     public string Category { get; set; }
+
+    public string? ImageDataUrl => ImageData != null ? $"data:image;base64,{Convert.ToBase64String(ImageData)}" : null;
+
 }
