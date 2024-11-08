@@ -73,6 +73,7 @@ namespace UCR.WEB.Blog.Controllers
 
         // GET: Posts/Edit/5
         // GET: Posts/Edit/5
+        [Authorize]
         public async Task<IActionResult> Edit(int? id)
         {
             ViewData["HeaderText"] = "Editar el Post";
@@ -90,8 +91,11 @@ namespace UCR.WEB.Blog.Controllers
 
             var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
 
-            if (userId != post.UserId && !User.IsInRole("Administrador"))
-            {
+            Console.WriteLine($"userId: {userId}, post.UserId: {post.UserId}, IsInRole(Admin): {User.IsInRole("Administrator")}");
+
+
+           if (userId != post.UserId || !User.IsInRole("Administrator"))
+           {
                 return Forbid(); // El usuario no est� autorizado a editar este post
             }
 
