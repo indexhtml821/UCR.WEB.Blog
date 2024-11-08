@@ -47,6 +47,7 @@ namespace UCR.WEB.Blog.Controllers
 
 
         // GET: Posts
+        [Authorize]
         public async Task<IActionResult> Index()
         {
             ViewData["HeaderText"] = "Publicaciones";
